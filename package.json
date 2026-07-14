@@ -36,5 +36,15 @@
 		"typescript": "^6.0.3",
 		"typescript-eslint": "^8.60.1",
 		"vite": "^8.0.16"
+	},
+	"devEngines": {
+		"packageManager": {
+			"name": "pnpm",
+			"version": "11.13.0",
+			"onFail": "download"
+		}
+	},
+	"dependencies": {
+		"gh-pages": "^6.3.0"
 	}
 }
