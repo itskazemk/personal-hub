@@ -2,55 +2,59 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: 'main'
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build_site:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v5
 
-      # If you're using pnpm, add this step then change the commands and cache key below to use `pnpm`
-      # - name: Install pnpm
-      #   uses: pnpm/action-setup@v6
-      #   with:
-      #     version: 8
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
 
-      - name: Install Node.js
-        uses: actions/setup-node@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: npm
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm i
+        run: pnpm install --frozen-lockfile
 
-      - name: build
+      - name: Build
         env:
-          BASE_PATH: '/${{ github.event.repository.name }}'
-        run: |
-          npm run build
+          BASE_PATH: "/${{ github.event.repository.name }}"
+        run: pnpm build
 
-      - name: Upload Artifacts
-        uses: actions/upload-pages-artifact@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          # this should match the `pages` option in your adapter-static options
-          path: 'build/'
+          path: build
 
   deploy:
     needs: build_site
     runs-on: ubuntu-latest
-
-    permissions:
-      pages: write
-      id-token: write
 
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v4
